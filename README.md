@@ -55,15 +55,36 @@ output/
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/ringba-export.git
-cd ringba-export
+### Option 1: Use directly with npx (no install needed)
 
-# Install dependencies
-pnpm install
-# or
+```bash
+npx ringba-export -a YOUR_ACCOUNT_ID -k YOUR_API_KEY
+```
+
+### Option 2: Install globally
+
+```bash
+npm install -g ringba-export
+```
+
+Then run from anywhere:
+
+```bash
+ringba-export -a YOUR_ACCOUNT_ID -k YOUR_API_KEY
+```
+
+### Option 3: Clone the repository
+
+```bash
+git clone https://github.com/ppckid/ringba-export.git
+cd ringba-export
 npm install
+```
+
+Then run with:
+
+```bash
+npm run export -- -a YOUR_ACCOUNT_ID -k YOUR_API_KEY
 ```
 
 ## Usage
@@ -71,7 +92,7 @@ npm install
 ### Basic Usage
 
 ```bash
-pnpm export -a YOUR_RACOUNT_ID -k YOUR_API_KEY
+npx ringba-export -a YOUR_ACCOUNT_ID -k YOUR_API_KEY
 ```
 
 ### Command Line Options
@@ -87,19 +108,19 @@ pnpm export -a YOUR_RACOUNT_ID -k YOUR_API_KEY
 Using long flags:
 
 ```bash
-pnpm export --account-id RA1234567890 --api-key your-api-key-here
+npx ringba-export --account-id RA1234567890 --api-key your-api-key-here
 ```
 
 Using short flags:
 
 ```bash
-pnpm export -a RA1234567890 -k your-api-key-here
+npx ringba-export -a RA1234567890 -k your-api-key-here
 ```
 
 Show help:
 
 ```bash
-pnpm export --help
+npx ringba-export --help
 ```
 
 ### Example Output
@@ -139,7 +160,7 @@ Export complete!
 If you want to build the TypeScript to JavaScript:
 
 ```bash
-pnpm build
+npm run build
 ```
 
 This creates the `dist/` folder with compiled JavaScript.

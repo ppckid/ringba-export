@@ -1,16 +1,39 @@
 {
   "name": "ringba-export",
-  "version": "1.0.0",
-  "description": "Export your data from Ringba",
+  "version": "1.0.1",
+  "description": "Export your data from Ringba to CSV and JSON files",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "ringba-export": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "export": "tsx src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
+  "keywords": [
+    "ringba",
+    "export",
+    "csv",
+    "json",
+    "cli",
+    "call-tracking",
+    "data-export"
+  ],
+  "author": "ppckid@yahoo.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ppckid/ringba-export.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ppckid/ringba-export/issues"
+  },
+  "homepage": "https://github.com/ppckid/ringba-export#readme",
   "engines": {
     "node": ">=18"
   },

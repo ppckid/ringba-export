@@ -1,6 +1,6 @@
 {
   "name": "ringba-export",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Export your data from Ringba to CSV and JSON files",
   "type": "module",
   "main": "dist/index.js",

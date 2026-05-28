@@ -28,6 +28,16 @@ interface UsageStats {
   };
 }
 
+interface BlockedNumber {
+  phoneNumber: string;
+  campaignId: string;
+  enabled: boolean;
+}
+
+interface BlockedNumbersResponse {
+  blockedNumbers: BlockedNumber[];
+}
+
 const args = minimist(process.argv.slice(2), {
   alias: {
     a: "account-id",
@@ -93,12 +103,16 @@ async function exportRingba() {
   const targets = await getObjects("targets", "targets", true);
   console.log(`Found ${targets.length} targets`);
 
+  const campaigns = await getObjects("campaigns", "campaigns", true);
+  console.log(`Found ${campaigns.length} campaigns`);
+
   // Convert to CSV
   const publishersCsv = convertToCSV(publishers);
   const buyersCsv = convertToCSV(buyers);
   const pingtreesCsv = convertToCSV(pingtrees);
   const pingtreetargetsCsv = convertToCSV(pingtreetargets);
   const targetsCsv = convertToCSV(targets);
+  const campaignsCsv = convertToCSV(campaigns);
 
   const date = new Date().toISOString().split("T")[0];
 
@@ -121,6 +135,60 @@ async function exportRingba() {
   const targetsFilename = `${outputDir}/targets-${accountId}-${date}.csv`;
   fs.writeFileSync(targetsFilename, targetsCsv);
   console.log(`Exported targets to ${targetsFilename}`);
+
+  const campaignsFilename = `${outputDir}/campaigns-${accountId}-${date}.csv`;
+  fs.writeFileSync(campaignsFilename, campaignsCsv);
+  console.log(`Exported campaigns to ${campaignsFilename}`);
+
+  await exportBlockedNumbers();
+}
+
+async function exportBlockedNumbers() {
+  const url = `https://api.ringba.com/v2/${accountId}/blockedNumbers`;
+
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Token ${apiKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch blockedNumbers: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const data = (await response.json()) as BlockedNumbersResponse;
+
+  fs.writeFileSync(
+    `${outputDir}/blockedNumbers-data.json`,
+    JSON.stringify(data, null, 2)
+  );
+
+  const groups = new Map<string, Set<string>>();
+  groups.set("blockedNumbers", new Set<string>());
+
+  for (const entry of data.blockedNumbers) {
+    if (entry.enabled !== true) continue;
+
+    const key = entry.campaignId
+      ? `blocked-${entry.campaignId}`
+      : "blockedNumbers";
+
+    let set = groups.get(key);
+    if (!set) {
+      set = new Set<string>();
+      groups.set(key, set);
+    }
+    set.add(entry.phoneNumber);
+  }
+
+  for (const [key, set] of groups) {
+    const filename = `${outputDir}/${key}.txt`;
+    fs.writeFileSync(filename, Array.from(set).join("\n"));
+    console.log(`Exported ${set.size} blocked numbers to ${filename}`);
+  }
 }
 
 async function getObjects(
@@ -168,12 +236,11 @@ async function getObjects(
       if (objects[normalizedId]) {
         // Publishers have a different stats structure than other object types
         if (objectType === "publishers") {
-          objects[normalizedId].monthly = (
-            stats as PublisherUsageStats
-          ).currentMonth;
+          objects[normalizedId].monthly =
+            (stats as PublisherUsageStats)?.currentMonth ?? null;
         } else {
-          objects[normalizedId].monthly = (stats as UsageStats).usageStats
-            .currentMonth;
+          objects[normalizedId].monthly =
+            (stats as UsageStats)?.usageStats?.currentMonth ?? null;
         }
       }
     }
